@@ -9,18 +9,18 @@
 pkgUnixName=CrossPack-AVR
 pkgPrettyName="CrossPack for AVR Development"
 pkgUrlName=crosspack    # name used for http://www.obdev.at/$pkgUrlName
-pkgVersion=20131205
+pkgVersion=20140615
 
 version_make=4.0
-version_automake=1.11.1 # required by binutils
-version_gdb=7.6.1
-version_gmp=4.3.2
+version_automake=1.14.1 # required by binutils
+version_gdb=7.7
+version_gmp=6.0.0a
 version_mpfr=3.1.2
-version_mpc=1.0
+version_mpc=1.0.2
 version_ppl=0.12.1
 version_cloog=0.16.2
-version_autoconf=2.64   # required by binutils
-version_libusb=1.0.9
+version_autoconf=2.69   # required by binutils
+version_libusb=1.0.18
 version_avarice=2.13
 version_avrdude=6.0.1
 version_simulavr=0.1.2.7
