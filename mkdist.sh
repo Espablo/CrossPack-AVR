@@ -13,7 +13,6 @@ pkgVersion=20140615
 
 version_make=4.0
 version_automake=1.14.1 # required by binutils
-version_gdb=7.7
 version_gmp=6.0.0a
 version_mpfr=3.1.2
 version_mpc=1.0.2
@@ -28,11 +27,12 @@ version_simulavr=0.1.2.7
 # We want to add simavr to the distribution, but it does not compile easily...
 
 # The following packages are fetched from Atmel:
-atmelToolchainVersion=3.4.2
-version_binutils=2.23.1
-version_gcc=4.7.2
+atmelToolchainVersion=3.4.4
+version_binutils=2.24
+version_gcc=4.8.1
+version_gdb=7.7
 #version_gcc3=3.4.6
-version_headers=6.1.3.1475
+version_headers=6.2.0.334
 version_avrlibc=1.8.0
 
 debug=false
@@ -212,7 +212,7 @@ unpackPackage() # <package-name>
 
 mergeAVRHeaders()
 {
-    for i in "../avr-headers-$version_headers"/io?*.h; do
+    for i in "../avr8-headers-$version_headers"/io?*.h; do
         # iotn4313.h is broken in atmel's header package AND in avr-libc-1.8.0. Our
         # build mechanism allows to apply a patch to avr-libc-1.8.0 (since it has the
         # standard configure/make procedure), but not to Atmel's headers. We therefore
@@ -265,7 +265,7 @@ mergeAVRHeaders()
                 print lines[i];
             }
         }
-    ' "../avr-headers-$version_headers/io.h" include/avr/io.h > include/avr/io.h.new
+    ' "../avr8-headers-$version_headers/io.h" include/avr/io.h > include/avr/io.h.new
     mv -f include/avr/io.h.new include/avr/io.h
 }
 
@@ -295,6 +295,9 @@ buildPackage() # <package-name> <known-product> <additional-config-args...>
 	base=$(echo "$name" | sed -e 's/-[.0-9]\{1,\}$//g')
     version=$(echo "$name" | sed -e 's/^.*-\([.0-9]\{1,\}\)$/\1/')
     unpackPackage "$name"
+    if [ "$base" = avr-libc ]; then
+      mv compile/$name/avr-libc/* compile/$name/ # new avr-libc files are stored in a subfolder inside the archive file
+    fi
     applyPatches "$name"
     (
         cd "compile/$name"
@@ -303,9 +306,9 @@ buildPackage() # <package-name> <known-product> <additional-config-args...>
             sed -ibak 's/  \[m4_fatal(\[Please use exactly Autoconf \]/  \[m4_errprintn(\[Please use exactly Autoconf \]/g' ./config/override.m4
             (cd ld; autoreconf)
         fi
-        if [ "$base" = avr-libc ]; then
-            mergeAVRHeaders
-        fi
+        #if [ "$base" = avr-libc ]; then
+        #    mergeAVRHeaders
+        #fi
         if [ -x ./bootstrap ]; then # avr-libc builds lib tree from this script
             ./bootstrap             # If the package has a bootstrap script, run it
             if [ "$base" = simulavr ]; then
@@ -404,11 +407,12 @@ fi
 
 echo "Starting download at $(date +"%Y-%m-%d %H:%M:%S")"
 
-atmelBaseURL="http://distribute.atmel.no/tools/opensource/Atmel-AVR-Toolchain-$atmelToolchainVersion/avr/"
-getPackage "$atmelBaseURL/avr-binutils-$version_binutils.tar.gz"
-getPackage "$atmelBaseURL/avr-gcc-$version_gcc.tar.gz"
-getPackage "$atmelBaseURL/avr-headers-$version_headers.zip"
-getPackage "$atmelBaseURL/avr-libc-$version_avrlibc.tar.gz"
+atmelBaseURL="http://distribute.atmel.no/tools/opensource/Atmel-AVR-GNU-Toolchain/$atmelToolchainVersion"
+getPackage "$atmelBaseURL/avr-binutils-$version_binutils.tar.bz2"
+getPackage "$atmelBaseURL/avr-gcc-$version_gcc.tar.bz2"
+getPackage "$atmelBaseURL/avr-gdb-$version_gdb.tar.bz2"
+getPackage "$atmelBaseURL/avr8-headers-$version_headers.zip"
+getPackage "$atmelBaseURL/avr-libc-$version_avrlibc.tar.bz2"
 # We do not fetch patches available in this directory because they are already applied
 #getPackage http://ftp.sunet.se/pub/gnu/gcc/releases/gcc-"$version_gcc3"/gcc-"$version_gcc3".tar.bz2
 
@@ -421,7 +425,6 @@ getPackage http://www.multiprecision.org/mpc/download/mpc-"$version_mpc".tar.gz
 #getPackage http://bugseng.com/products/ppl/download/ftp/releases/"$version_ppl"/ppl-"$version_ppl".tar.bz2
 #getPackage http://gcc.cybermirror.org/infrastructure/cloog-"$version_cloog".tar.gz
 getPackage http://ftp.gnu.org/gnu/autoconf/autoconf-"$version_autoconf".tar.gz
-getPackage http://ftp.sunet.se/pub/gnu/gdb/gdb-"$version_gdb".tar.bz2
 getPackage http://downloads.sourceforge.net/avarice/avarice-"$version_avarice".tar.bz2
 getPackage http://download.savannah.gnu.org/releases/avr-libc/avr-libc-manpages-"$version_avrlibc".tar.bz2
 getPackage http://download.savannah.gnu.org/releases/avr-libc/avr-libc-user-manual-"$version_avrlibc".tar.bz2
@@ -527,7 +530,7 @@ buildPackage avr-gcc-"$version_gcc" "$prefix/bin/avr-gcc" --target=avr --enable-
 #########################################################################
 # avr-libc
 #########################################################################
-unpackPackage "avr-headers-$version_headers"
+unpackPackage "avr8-headers-$version_headers"
 buildPackage avr-libc-"$version_avrlibc" "$prefix/avr/lib/libc.a" --host=avr
 copyPackage avr-libc-user-manual-"$version_avrlibc" "$prefix/doc/avr-libc"
 copyPackage avr-libc-manpages-"$version_avrlibc" "$prefix/man"
@@ -540,7 +543,7 @@ buildPackage avr-gcc-"$version_gcc" "$prefix/bin/avr-g++" --target=avr --enable-
 #########################################################################
 # gdb and simulavr
 #########################################################################
-buildPackage gdb-"$version_gdb" "$prefix/bin/avr-gdb" --target=avr --without-python
+buildPackage avr-gdb-"$version_gdb" "$prefix/bin/avr-gdb" --target=avr --without-python
 (
     binutils="$(pwd)/compile/avr-binutils-$version_binutils"
     buildCFLAGS="$buildCFLAGS $("$prefix/bin/libusb-config" --cflags) -I$binutils/bfd -I$binutils/include -O"
