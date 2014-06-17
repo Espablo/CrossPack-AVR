@@ -341,7 +341,7 @@ buildPackage() # <package-name> <known-product> <additional-config-args...>
         echo "cwd=`pwd`"
         echo $rootdir/configure --prefix="$prefix" $configureArgs "$@"
         $rootdir/configure --prefix="$prefix" $configureArgs "$@" || exit 1
-        postConfigurePatches
+        #postConfigurePatches
         if [ -d $rootdir/bfd ]; then # if we build GNU binutils, ensure we update headers after patching
             make    # expect this make to fail, but at least we have configured everything
             (
