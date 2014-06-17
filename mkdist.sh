@@ -21,7 +21,7 @@ version_cloog=0.16.2
 version_autoconf=2.69   # required by binutils
 version_libusb=1.0.18
 version_avarice=2.13
-version_avrdude=6.0.1
+version_avrdude=6.1
 version_simulavr=0.1.2.7
 # simulavr-1.0.0 does not compile
 # We want to add simavr to the distribution, but it does not compile easily...
@@ -561,7 +561,7 @@ checkreturn
 # avrdude
 #########################################################################
 (
-    buildCFLAGS="$buildCFLAGS $("$prefix/bin/libusb-config" --cflags)"
+    buildCFLAGS="$buildCFLAGS $("$prefix/bin/libusb-config" --cflags) -I/usr/include"
     export LDFLAGS="$LDFLAGS $("$prefix/bin/libusb-config" --libs)"
     buildPackage avrdude-"$version_avrdude" "$prefix/bin/avrdude"
     copyPackage avrdude-doc-"$version_avrdude" "$prefix/doc/avrdude"
