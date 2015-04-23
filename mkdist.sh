@@ -46,7 +46,7 @@ configureArgs="--disable-dependency-tracking --disable-nls --disable-werror"
 umask 0022
 
 xcodepath="$(xcode-select -print-path)"
-sysroot="$xcodepath/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk"
+sysroot="$xcodepath/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk"
 
 # Do not include original PATH in our PATH to ensure that third party stuff is not found
 PATH="$prefix/bin:$xcodepath/usr/bin:$xcodepath/Toolchains/XcodeDefault.xctoolchain/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"
