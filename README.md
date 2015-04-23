@@ -12,7 +12,7 @@ as a project template, manual etc.
 PREREQUISITES
 =============
 
-* Xcode 5. It probably also works with Xcode 4.4 and newer versions of Xcode.
+* Xcode 6. Tested with Xcode 6.2 on 10.9 (Mavericks) and Xcode 6.3 on 10.10 (Yosemite).
 
 
 BUILDING CROSSPACK-AVR
