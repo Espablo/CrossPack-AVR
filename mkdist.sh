@@ -9,7 +9,7 @@
 pkgUnixName=CrossPack-AVR
 pkgPrettyName="CrossPack for AVR Development"
 pkgUrlName=crosspack    # name used for http://www.obdev.at/$pkgUrlName
-pkgVersion=20140615
+pkgVersion=20150419
 
 version_make=4.0
 version_automake=1.14.1 # required by binutils
@@ -27,12 +27,12 @@ version_simulavr=0.1.2.7
 # We want to add simavr to the distribution, but it does not compile easily...
 
 # The following packages are fetched from Atmel:
-atmelToolchainVersion=3.4.4
+atmelToolchainVersion=3.4.5
 version_binutils=2.24
 version_gcc=4.8.1
-version_gdb=7.7
+version_gdb=7.8
 #version_gcc3=3.4.6
-version_headers=6.2.0.334
+version_headers=6.2.0.469
 version_avrlibc=1.8.0
 
 debug=false
