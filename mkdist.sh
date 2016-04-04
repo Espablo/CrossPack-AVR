@@ -9,19 +9,19 @@
 pkgUnixName=CrossPack-AVR
 pkgPrettyName="CrossPack for AVR Development"
 pkgUrlName=crosspack    # name used for http://www.obdev.at/$pkgUrlName
-pkgVersion=20150419
+pkgVersion=20160403
 
-version_make=4.0
-version_automake=1.14.1 # required by binutils
-version_gmp=6.0.0a
+version_make=4.1
+version_automake=1.15 # required by binutils
+version_gmp=6.1.0
 version_mpfr=3.1.2
-version_mpc=1.0.2
+version_mpc=1.0.3
 version_ppl=0.12.1
 version_cloog=0.16.2
 version_autoconf=2.69   # required by binutils
-version_libusb=1.0.18
+version_libusb=1.0.20
 version_avarice=2.13
-version_avrdude=6.1
+version_avrdude=6.3
 version_simulavr=0.1.2.7
 # simulavr-1.0.0 does not compile
 # We want to add simavr to the distribution, but it does not compile easily...
@@ -46,13 +46,13 @@ configureArgs="--disable-dependency-tracking --disable-nls --disable-werror"
 umask 0022
 
 xcodepath="$(xcode-select -print-path)"
-sysroot="$xcodepath/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk"
+sysroot="$xcodepath/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
 
 # Do not include original PATH in our PATH to ensure that third party stuff is not found
 PATH="$prefix/bin:$xcodepath/usr/bin:$xcodepath/Toolchains/XcodeDefault.xctoolchain/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export PATH
 
-commonCFLAGS="-isysroot $sysroot -mmacosx-version-min=10.8"
+commonCFLAGS="-isysroot $sysroot -mmacosx-version-min=10.11"
 # Build libraries for i386 and x86_64, but executables i386 only so that the
 # size of the distribution is not unecessary large.
 buildCFLAGS="$commonCFLAGS -arch x86_64"  # used for tool chain
@@ -76,12 +76,17 @@ fi
 ###############################################################################
 
 # download a package and unpack it
-getPackage() # <package-name>
+getPackage() # <package-name> <package-filename>
 {
     url="$1"
-    package=$(basename "$url")
+    if [ "$2" = "" ]; then
+        package=$(basename "$url")
+    else
+        package="$2"
+    fi
     if [ ! -f "packages/$package" ]; then
-        echo "=== Downloading package $package"
+        echo "=== Downloading package" $(basename "$url")
+        echo $url
         curl --location --progress-bar -o "packages/$package" "$url"
     fi
 }
@@ -335,6 +340,10 @@ buildPackage() # <package-name> <known-product> <additional-config-args...>
         echo "cwd=`pwd`"
         echo $rootdir/configure --prefix="$prefix" $configureArgs "$@"
         $rootdir/configure --prefix="$prefix" $configureArgs "$@" || exit 1
+
+        if [ "$base" != libusb ]; then
+            make_j=-j5
+        fi
         #postConfigurePatches
         if [ -d $rootdir/bfd ]; then # if we build GNU binutils, ensure we update headers after patching
             make    # expect this make to fail, but at least we have configured everything
@@ -344,7 +353,7 @@ buildPackage() # <package-name> <known-product> <additional-config-args...>
                 make headers
             )
         fi
-        if ! make; then
+        if ! make $make_j; then
             echo "################################################################################"
             echo "Building $name failed."
             echo "################################################################################"
@@ -410,20 +419,20 @@ getPackage "$atmelBaseURL/avr-libc-$version_avrlibc.tar.bz2"
 # We do not fetch patches available in this directory because they are already applied
 #getPackage http://ftp.sunet.se/pub/gnu/gcc/releases/gcc-"$version_gcc3"/gcc-"$version_gcc3".tar.bz2
 
-getPackage http://ftp.sunet.se/pub/gnu/make/make-"$version_make".tar.bz2
-getPackage http://ftp.gnu.org/gnu/automake/automake-"$version_automake".tar.gz
+getPackage http://mirror.easyname.at/gnu/make/make-"$version_make".tar.bz2
+getPackage http://mirror.easyname.at/gnu/automake/automake-"$version_automake".tar.gz
 getPackage https://gmplib.org/download/gmp/gmp-"$version_gmp".tar.bz2
-getPackage http://ftp.sunet.se/pub/gnu/mpfr/mpfr-"$version_mpfr".tar.bz2
-getPackage http://www.multiprecision.org/mpc/download/mpc-"$version_mpc".tar.gz
+getPackage http://www.mpfr.org/mpfr-"$version_mpfr"/mpfr-"$version_mpfr".tar.bz2
+getPackage http://mirror.easyname.at/gnu/mpc/mpc-"$version_mpc".tar.gz
 # We would like to compile with cloog, but linking 32 bit C++ code fails with clang.
 #getPackage http://bugseng.com/products/ppl/download/ftp/releases/"$version_ppl"/ppl-"$version_ppl".tar.bz2
 #getPackage http://gcc.cybermirror.org/infrastructure/cloog-"$version_cloog".tar.gz
-getPackage http://ftp.gnu.org/gnu/autoconf/autoconf-"$version_autoconf".tar.gz
+getPackage http://mirror.easyname.at/gnu/autoconf/autoconf-"$version_autoconf".tar.gz
 getPackage http://downloads.sourceforge.net/avarice/avarice-"$version_avarice".tar.bz2
-getPackage http://download.savannah.gnu.org/releases/avr-libc/avr-libc-manpages-"$version_avrlibc".tar.bz2
-getPackage http://download.savannah.gnu.org/releases/avr-libc/avr-libc-user-manual-"$version_avrlibc".tar.bz2
-getPackage http://switch.dl.sourceforge.net/project/libusb/libusb-1.0/libusb-"$version_libusb"/libusb-"$version_libusb".tar.bz2
-getPackage http://switch.dl.sourceforge.net/project/libusb/libusb-0.1%20%28LEGACY%29/0.1.12/libusb-0.1.12.tar.gz
+getPackage http://download.savannah.gnu.org/releases/avr-libc/avr-libc-manpages-1.8.1.tar.bz2
+getPackage http://download.savannah.gnu.org/releases/avr-libc/avr-libc-user-manual-1.8.1.tar.bz2
+getPackage https://sourceforge.net/projects/libusb/files/libusb-1.0/libusb-"$version_libusb"/libusb-"$version_libusb".tar.bz2
+getPackage https://sourceforge.net/projects/libusb/files/libusb-0.1%20%28LEGACY%29/0.1.12/libusb-0.1.12.tar.gz
 getPackage http://download.savannah.gnu.org/releases/avrdude/avrdude-"$version_avrdude".tar.gz
 getPackage http://download.savannah.gnu.org/releases/avrdude/avrdude-doc-"$version_avrdude".tar.gz
 getPackage http://download.savannah.gnu.org/releases/simulavr/simulavr-"$version_simulavr".tar.gz
@@ -526,8 +535,8 @@ buildPackage avr-gcc-"$version_gcc" "$prefix/bin/avr-gcc" --target=avr --enable-
 #########################################################################
 unpackPackage "avr8-headers-$version_headers"
 buildPackage avr-libc-"$version_avrlibc" "$prefix/avr/lib/libc.a" --host=avr
-copyPackage avr-libc-user-manual-"$version_avrlibc" "$prefix/doc/avr-libc"
-copyPackage avr-libc-manpages-"$version_avrlibc" "$prefix/man"
+copyPackage avr-libc-user-manual-1.8.1 "$prefix/doc/avr-libc"
+copyPackage avr-libc-manpages-1.8.1 "$prefix/man"
 
 #########################################################################
 # avr-gcc full build
