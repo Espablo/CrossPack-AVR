@@ -9,17 +9,17 @@
 pkgUnixName=CrossPack-AVR
 pkgPrettyName="CrossPack for AVR Development"
 pkgUrlName=crosspack    # name used for http://www.obdev.at/$pkgUrlName
-pkgVersion=20160403
+pkgVersion=20170319
 
-version_make=4.1
+version_make=4.2.1
 version_automake=1.15 # required by binutils
-version_gmp=6.1.0
-version_mpfr=3.1.2
+version_gmp=6.1.2
+version_mpfr=3.1.5
 version_mpc=1.0.3
 version_ppl=0.12.1
 version_cloog=0.16.2
 version_autoconf=2.69   # required by binutils
-version_libusb=1.0.20
+version_libusb=1.0.21
 version_avarice=2.13
 version_avrdude=6.3
 version_simulavr=0.1.2.7
@@ -46,13 +46,13 @@ configureArgs="--disable-dependency-tracking --disable-nls --disable-werror"
 umask 0022
 
 xcodepath="$(xcode-select -print-path)"
-sysroot="$xcodepath/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
+sysroot="$xcodepath/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
 
 # Do not include original PATH in our PATH to ensure that third party stuff is not found
 PATH="$prefix/bin:$xcodepath/usr/bin:$xcodepath/Toolchains/XcodeDefault.xctoolchain/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export PATH
 
-commonCFLAGS="-isysroot $sysroot -mmacosx-version-min=10.11"
+commonCFLAGS="-isysroot $sysroot"
 # Build libraries for i386 and x86_64, but executables i386 only so that the
 # size of the distribution is not unecessary large.
 buildCFLAGS="$commonCFLAGS -arch x86_64"  # used for tool chain
@@ -431,8 +431,8 @@ getPackage http://mirror.easyname.at/gnu/autoconf/autoconf-"$version_autoconf".t
 getPackage http://downloads.sourceforge.net/avarice/avarice-"$version_avarice".tar.bz2
 getPackage http://download.savannah.gnu.org/releases/avr-libc/avr-libc-manpages-1.8.1.tar.bz2
 getPackage http://download.savannah.gnu.org/releases/avr-libc/avr-libc-user-manual-1.8.1.tar.bz2
-getPackage https://sourceforge.net/projects/libusb/files/libusb-1.0/libusb-"$version_libusb"/libusb-"$version_libusb".tar.bz2
-getPackage https://sourceforge.net/projects/libusb/files/libusb-0.1%20%28LEGACY%29/0.1.12/libusb-0.1.12.tar.gz
+getPackage http://downloads.sourceforge.net/project/libusb/libusb-1.0/libusb-"$version_libusb"/libusb-"$version_libusb".tar.bz2
+getPackage http://downloads.sourceforge.net/project/libusb/libusb-0.1%20%28LEGACY%29/0.1.12/libusb-0.1.12.tar.gz
 getPackage http://download.savannah.gnu.org/releases/avrdude/avrdude-"$version_avrdude".tar.gz
 getPackage http://download.savannah.gnu.org/releases/avrdude/avrdude-doc-"$version_avrdude".tar.gz
 getPackage http://download.savannah.gnu.org/releases/simulavr/simulavr-"$version_simulavr".tar.gz
